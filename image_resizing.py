@@ -26,7 +26,7 @@ def resize_image(image_path: str, new_height: int, new_width: int, brighten=1, c
             image = cv2.imread(filepath)
             edit = cv2.resize(image, (w, h), interpolation=cv2.INTER_AREA)
 
-            if (contrast, brighten) != 1:
+            if (contrast, brighten) != (1,1):
                 edit = cv2.convertScaleAbs(edit, alpha=brighten, beta=contrast)
 
             if img_name == os.listdir(input_folder)[0]:
