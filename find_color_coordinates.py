@@ -50,7 +50,7 @@ def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
             binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
             binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
-            
+
             contours = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
             ind_contours = [np.array(contour) for contour in contours]
 
@@ -77,6 +77,8 @@ def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors
 
                 copy1 = image.copy()
                 copy2 = image.copy()
+                copy3 = image.copy()
+                copy3[:, :] = [0, 0, 0]
 
                 for coordinate in coordinates:
 
@@ -86,12 +88,13 @@ def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors
                     blur = cv2.GaussianBlur(region, (31, 31), 0, 0)
                     copy1[coordinate[2]:coordinate[3], coordinate[0]:coordinate[1]] = blur
                     copy2[coordinate[2]:coordinate[3], coordinate[0]:coordinate[1]] = [255, 255, 255]
+                    copy3[coordinate[2]:coordinate[3], coordinate[0]:coordinate[1]] = [255, 255, 255]
 
-                edit = cv2.hconcat([image, copy1, copy2])
+                edit = cv2.hconcat([image, copy1, copy2, copy3])
 
-                if edit.shape[1] > 1500:
-                    new_height = int(edit.shape[0]/edit.shape[1] * 1500)
-                    edit = cv2.resize(edit, (new_height, 1500))
+                if edit.shape[1] > 2000:
+                    new_height = int(edit.shape[0]/edit.shape[1] * 2000)
+                    edit = cv2.resize(edit, (new_height, 2000))
 
                 cv2.imshow("First Edit", edit)
                 cv2.waitKey(0)
@@ -111,6 +114,6 @@ hat_color = [16, 16, 16]
 hair_color = [31, 31, 31]
 glasses_color = [61, 61, 61]
 margin_of_error = 0
-minimum_head_size = 30
-find_coordinates(##############################################, margin_of_error, minimum_head_size,
+minimum_head_size = 40
+find_coordinates(########################################################, margin_of_error, minimum_head_size,
                  face_color, glasses_color)
