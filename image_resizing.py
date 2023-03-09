@@ -2,7 +2,7 @@ import cv2
 import os
 
 
-def resize_image(image_path: str, new_height: int, n_width: int):
+def resize_image(image_path: str, new_height: int, new_width: int, brighten=1, contrast=1):
 
     """Outputs another folder where all images are resized to the et dimensions.
     Make sure the path you input is the root path reaching the input image. Height and Width in pixels."""
@@ -26,9 +26,11 @@ def resize_image(image_path: str, new_height: int, n_width: int):
             image = cv2.imread(filepath)
             edit = cv2.resize(image, (w, h), interpolation=cv2.INTER_AREA)
 
+            if (contrast, brighten) != 1:
+                edit = cv2.convertScaleAbs(edit, alpha=brighten, beta=contrast)
+
             if img_name == os.listdir(input_folder)[0]:
-                image = edit
-                cv2.imshow("First Edit", image)
+                cv2.imshow("First Edit", edit)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
@@ -39,10 +41,11 @@ def resize_image(image_path: str, new_height: int, n_width: int):
 
     plural_noun = {True: "", False: "s"}[errors < 1]
     plural_verb = {True: "was", False: "were"}[errors < 1]
-    print(f"Done. {errors} image{plural_noun} {plural_verb} unsuccessfully processed.")
+    print(f"{len(os.listdir(input_folder)) - errors} image{plural_noun} processed. "
+          f"{errors} image{plural_noun} {plural_verb} unsuccessfully processed.")
 
 
-input_folder = r"C:\Users\cotyl\OneDrive\Desktop\CCIHP_icip\test_folder"
+input_folder = ###########################
 new_height = 300
 new_width = 300
-resize_image(input_folder, new_height, new_width)
+resize_image(input_folder, new_height, new_width, 15, 1)
