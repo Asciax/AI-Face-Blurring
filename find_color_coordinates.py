@@ -4,12 +4,13 @@ import numpy as np
 import csv
 
 
-def find_coordinates(folder_path: str, margin: int, *target_colors: list):
+def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors: list):
 
     """Returns a CSV file containing the coordinates corresponding to the colors' position. Each row corresponds to
     the position of one individual object, and a blank row means that it's the coordinates of the next image.
     If multiple target colors are entered, then the contours will treat those overlapping colors as one
-    object. Please enter BGR values for the colors. Margin is the variation in BGR value allowed"""
+    object. Please enter BGR values for the colors. Margin is the variation in BGR value allowed. Minimum is the
+    smallest allowed size of a face in pixels"""
 
     errors = 0
 
@@ -44,11 +45,12 @@ def find_coordinates(folder_path: str, margin: int, *target_colors: list):
                 mask = masks[0]
 
             # Turn the Image into a Binary Image. Also smooths out noises and small spots.
-            binary_image = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)[1]
+            binary_image = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)[1]
+
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
             binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
             binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
-
+            
             contours = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
             ind_contours = [np.array(contour) for contour in contours]
 
@@ -57,7 +59,8 @@ def find_coordinates(folder_path: str, margin: int, *target_colors: list):
                 cx = [row[0][0] for row in contour]
                 cy = [row[0][1] for row in contour]
                 coordinate = (min(cx), max(cx), min(cy), max(cy))
-                coordinates.append(coordinate)
+                if (coordinate[1] - coordinate[0])*(coordinate[3]-coordinate[2]) >= minimum:
+                    coordinates.append(coordinate)
 
             directory = os.path.basename(input_folder)
             with open(rf"{input_folder} Head Coordinates/{directory} Coordinates.csv", "a", newline="") as file:
@@ -71,7 +74,7 @@ def find_coordinates(folder_path: str, margin: int, *target_colors: list):
                 obj.writerow([])
 
             if img_name in os.listdir(input_folder)[0:4]:
-                
+
                 copy1 = image.copy()
                 copy2 = image.copy()
 
@@ -106,5 +109,8 @@ def find_coordinates(folder_path: str, margin: int, *target_colors: list):
 face_color = [196, 196, 196]
 hat_color = [16, 16, 16]
 hair_color = [31, 31, 31]
-find_coordinates(##############################################, 5,
-                 face_color, hat_color, hair_color)
+glasses_color = [61, 61, 61]
+margin_of_error = 0
+minimum_head_size = 30
+find_coordinates(##############################################, margin_of_error, minimum_head_size,
+                 face_color, glasses_color)
