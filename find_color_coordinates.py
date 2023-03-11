@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from numpy import savetxt
 import csv
 
 
@@ -96,7 +97,7 @@ def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors
                     new_height = int(edit.shape[0]/edit.shape[1] * 2000)
                     edit = cv2.resize(edit, (new_height, 2000))
 
-                cv2.imshow("First Edit", edit)
+                cv2.imshow("First Edits", edit)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
@@ -109,11 +110,37 @@ def find_coordinates(folder_path: str, margin: int, minimum: int, *target_colors
           f"{errors} image{plural_noun} {plural_verb} unsuccessfully processed.")
 
 
+def vector(csv_file):
+    """ Turns the CSV file into another CSV file composed of multiple vectors"""
+    with open(csv_file, "r", newline="") as f:
+        boxes = []
+
+        file = csv.reader(f)
+        next(file)
+
+        image = []
+        for line in file:
+            if line:
+                image += line
+
+            if not line:
+                boxes.append(image)
+                image = []
+
+        with open(csv_file, "w", newline="") as f:
+            file = csv.writer(f)
+
+            for line in boxes:
+                file.writerow(line)
+
+
 face_color = [196, 196, 196]
 hat_color = [16, 16, 16]
 hair_color = [31, 31, 31]
 glasses_color = [61, 61, 61]
 margin_of_error = 0
 minimum_head_size = 40
-find_coordinates(########################################################, margin_of_error, minimum_head_size,
+find_coordinates(r"C:\Users\cotyl\OneDrive\Desktop\CCIHP_icip\train_seg Resized", margin_of_error, minimum_head_size,
                  face_color, glasses_color)
+
+vector(r"C:\Users\cotyl\OneDrive\Desktop\CCIHP_icip\train_seg Resized Head Coordinates\train_seg Resized Coordinates.csv")
